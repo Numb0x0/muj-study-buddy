@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "muj-study-buddy",
+    "emulators": "demo-muj-study-buddy"
+  }
+}

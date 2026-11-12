@@ -1,0 +1,98 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────
+// MUJ Study Buddy — Firestore security rules
+//
+// Public (unauthenticated) users:
+//   • may READ active catalogue docs (universities, departments, programs,
+//     semesters, subjects), published notes, active faculty, active community
+//     items / announcements, and site settings.
+//   • may NEVER read drafts/archived notes or audit logs.
+//   • may NEVER write anything.
+//
+// Admins (custom claim admin == true):
+//   • may read everything.
+//   • Direct client WRITES are still denied for all collections — every write
+//     goes through server route handlers using the Admin SDK (which bypasses
+//     these rules), so that validation, audit logging and the publish workflow
+//     cannot be skipped.
+// ─────────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function isActive() {
+      return resource.data.isActive == true;
+    }
+
+    match /universities/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+    match /departments/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+    match /programs/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+    match /semesters/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+    match /subjects/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+
+    match /notes/{id} {
+      // Drafts and archived notes are private.
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if false;
+    }
+
+    match /faculty/{id} {
+      // Public pages use the Admin SDK and redact unverified contact fields. For
+      // direct client reads, hide profiles that hold unverified contact data.
+      allow read: if isAdmin() || (isActive() && (
+        resource.data.isVerified == true ||
+        (resource.data.get('email', null) == null && resource.data.get('phone', null) == null)
+      ));
+      allow write: if false;
+    }
+
+    match /communityItems/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+
+    match /announcements/{id} {
+      allow read: if isActive() || isAdmin();
+      allow write: if false;
+    }
+
+    match /siteSettings/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /auditLogs/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // fileBlobs/{id} and fileBlobs/{id}/chunks/{n} hold uploaded PDF bytes
+    // (Spark plan has no Cloud Storage). They are read and written only by the
+    // server (Admin SDK); published files are streamed by /api/files/[noteId].
+    // No client access at all — covered by the catch-all deny below.
+
+    // Deny everything not listed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

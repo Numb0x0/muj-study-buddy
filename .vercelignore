@@ -1,0 +1,19 @@
+# Never upload secrets or private data to Vercel. Environment variables are set
+# in the Vercel project settings instead (see README §5).
+.env*
+!.env.example
+data/private/
+*-service-account*.json
+serviceAccountKey*.json
+
+# Local-only artefacts
+node_modules/
+.next/
+emulator-data/
+firebase-export-*/
+tests/.artifacts/
+shots/
+*.log
+tsconfig.tsbuildinfo
+public/pdfjs/
+docs/reference-design.png
