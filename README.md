@@ -98,6 +98,8 @@ To use the admin dashboard locally, open <http://localhost:3000/admin/login> and
 
 Commands ending in `:live` use `.env.live.local`. Everything else, including the tests, uses the emulators.
 
+**Keeping the service account key safe.** It only ever lives in `.env.live.local` on your machine and in Vercel's environment variables. It is never committed and never sent to the browser (only `NEXT_PUBLIC_*` values are). To replace a key: generate a new one in the Firebase console, run `npm run key:set -- path/to/downloaded.json`, then `npm run vercel:env`, redeploy, and delete the old key in the console.
+
 ## Deploying
 
 The site is deployed on Vercel:

@@ -22,6 +22,7 @@
     "admin:revoke:live": "FIREBASE_ENV=live tsx scripts/set-admin-claim.ts revoke",
     "admin:list:live": "FIREBASE_ENV=live tsx scripts/set-admin-claim.ts list",
     "cleanup:orphans:live": "FIREBASE_ENV=live tsx scripts/cleanup-orphans.ts",
+    "key:set": "node scripts/set-service-key.mjs",
     "vercel:env": "node scripts/vercel-env-push.mjs",
     "auth:domain:live": "FIREBASE_ENV=live tsx scripts/authorize-domain.ts",
     "indexes:generate": "node scripts/generate-indexes.mjs",
